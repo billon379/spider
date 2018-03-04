@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.architect.spider.dao.ICourseDAO">
+
+    <!-- 插入课程 -->
+    <insert id="insertCourse" parameterType="list">
+        INSERT INTO
+        course(board_id,title,cware_name,teacher_name,year,cware_class_id,open,cware_id,cware_title) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.boardID},#{item.mobileTitle},#{item.cwareName},#{item.teacherName},#{item.cYearName},
+            #{item.cwareClassID},#{item.mobileCourseOpen},#{item.cwareID},#{item.cwareTitle})
+        </foreach>
+    </insert>
+
+    <!-- 添加章节 -->
+    <insert id="insertChapter" parameterType="list">
+        INSERT INTO chapter(chapter_title,chapter_code,content,cware_id,course_title) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.chapterTitle},#{item.chapterCode},#{item.content},#{item.cwareId},#{item.courseTitle})
+        </foreach>
+    </insert>
+
+    <!-- 查询课程 -->
+    <select id="queryCourseByYear" parameterType="com.architect.spider.model.CourseModel"
+            resultType="com.architect.spider.model.CourseModel">
+        SELECT
+            id,board_id boardId,title mobileTitle,cware_name cwareName,teacher_name teacherName,
+            year cYearName,cware_class_id cwareClassID,open mobileCourseOpen,c.cware_id cwareID,
+            cware_title cwareTitle,A.num
+        FROM course c
+        JOIN (SELECT cware_id,COUNT(1) num FROM chapter GROUP BY cware_id) A ON A.cware_id=c.cware_id
+        WHERE year = #{cYearName}
+    </select>
+
+    <!-- 获取章节列表 -->
+    <select id="queryChapter" parameterType="com.architect.spider.model.ChapterModel"
+            resultType="com.architect.spider.model.ChapterModel">
+        SELECT
+        id,chapter_title chapterTitle,chapter_code chapterCode,cware_id cwareId,course_title courseTitle
+        FROM chapter
+        <where>
+            cware_id = #{cwareId}
+        </where>
+    </select>
+
+    <!-- 获取章节详情 -->
+    <select id="queryChapterDetail" parameterType="com.architect.spider.model.ChapterModel"
+            resultType="com.architect.spider.model.ChapterModel">
+        SELECT
+        id,chapter_title chapterTitle,chapter_code chapterCode,
+        content,cware_id cwareId,course_title courseTitle
+        FROM chapter
+        <where>
+            cware_id = #{cwareId}
+            AND id = #{id}
+        </where>
+    </select>
+
+</mapper>
